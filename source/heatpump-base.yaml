@@ -62,7 +62,7 @@ esphome:
   friendly_name: "${description}"
   project:
     name: "${devicename}.${description}"
-    version: 7.1.1
+    version: 7.1.2
 
 esp32:
   board: esp32dev
@@ -786,6 +786,8 @@ sensor:
     unit_of_measurement: A
     device_class: "current"
     state_class: "measurement"
+    filters:
+      - multiply: 0.1
   # Register: 134
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
@@ -858,7 +860,6 @@ sensor:
     register_type: holding
     address: 0x8b
     value_type: U_WORD
-    unit_of_measurement: "kW"
   # Register: 140
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
