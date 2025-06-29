@@ -780,6 +780,8 @@ sensor:
     unit_of_measurement: A
     device_class: "current"
     state_class: "measurement"
+    filters:
+      - multiply: 0.1
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "DC Bus Voltage"
@@ -846,7 +848,6 @@ sensor:
     register_type: holding
     address: 0x8b
     value_type: U_WORD
-    unit_of_measurement: "kW"
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Ability Of Hydraulic Module"
@@ -881,6 +882,8 @@ sensor:
     state_class: total_increasing
     address: 0x8f
     value_type: U_DWORD
+    filters:
+      - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Power Output"
@@ -892,6 +895,9 @@ sensor:
     state_class: total_increasing
     address: 0x91
     value_type: U_DWORD
+
+    filters:
+      - lambda: return x * 0.01;
 
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
@@ -1173,6 +1179,8 @@ sensor:
     address: 152
     value_type: U_DWORD
     accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Total heating renewable energy produced for system"
@@ -1185,6 +1193,8 @@ sensor:
     address: 154
     value_type: U_DWORD
     accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Total heating power consumed for system"
@@ -1197,6 +1207,8 @@ sensor:
     address: 156
     value_type: U_DWORD
     accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Total heating power produced for master unit"
@@ -1209,6 +1221,8 @@ sensor:
     address: 158
     value_type: U_DWORD
     accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Total renewable heating power produced for master unit"
@@ -1221,6 +1235,8 @@ sensor:
     address: 160
     value_type: U_DWORD
     accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Total heating power consumed for master unit"
@@ -1233,6 +1249,8 @@ sensor:
     address: 162
     value_type: U_DWORD
     accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Total COP in heating mode for master unit"
@@ -1256,6 +1274,8 @@ sensor:
     address: 165
     value_type: U_DWORD
     accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Total cooling renewable energy produced for master unit"
@@ -1268,6 +1288,8 @@ sensor:
     address: 167
     value_type: U_DWORD
     accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Total cooling power consumed for master unit"
@@ -1280,6 +1302,8 @@ sensor:
     address: 169
     value_type: U_DWORD
     accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Total COP in cooling mode for master unit"
@@ -1303,6 +1327,8 @@ sensor:
     address: 172
     value_type: U_DWORD
     accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Total DHW renewable energy produced for master unit"
@@ -1315,6 +1341,8 @@ sensor:
     address: 174
     value_type: U_DWORD
     accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Total DHW power consumed for master unit"
@@ -1327,6 +1355,8 @@ sensor:
     address: 176
     value_type: U_DWORD
     accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Total COP in DHW mode for master unit"
@@ -2032,12 +2062,6 @@ binary_sensor:
     id: "${devicename}_parameter_setting_1_supports_water_tank_electric_heater_tbh"
     icon: mdi:eye
     lambda: "return (id(unmasked_value_register_210) & 0x4000) == 0x4000; // Return status bit14"
-
-  - platform: template
-    name: "Parameter Setting 2 Reserved BIT 15"
-    id: "${devicename}_parameter_setting_2_reserved_bit_15"
-    icon: mdi:head-question-outline
-    lambda: "return (id(unmasked_value_register_211) & 0x8000) == 0x8000; // Return status bit15"
 
   - platform: template
     name: "Heat pump running"
@@ -3292,6 +3316,37 @@ switch:
           }
 
   - platform: template
+    name: "Enablement status of ACS function"
+    id: "${devicename}_parameter_setting_2_acs_enablement_status"
+    icon: mdi:eye
+    restore_mode: DISABLED
+    entity_category: config
+    optimistic: true
+    lambda: "return (id(unmasked_value_register_211) & 0x8000) == 0x8000;"
+    on_turn_on:
+      - lambda: |-
+          uint16_t checked_bit = 0x8000;
+          uint16_t new_value = id(unmasked_value_register_211);  // The original unmasked value
+          new_value &= ~checked_bit;                             // Clear and set
+          new_value += checked_bit;
+          if ((new_value) != id(unmasked_value_register_211)) {
+            // ESP_LOGD("unmasked_value_register_211", "Set option to on p_s_2_acs_enablement_status 0x%x -> 0x%x", id(unmasked_value_register_211), new_value);
+            id(unmasked_value_register_211) = new_value;
+            esphome::modbus_controller::ModbusCommandItem set_payload_command = esphome::modbus_controller::ModbusCommandItem::create_write_single_command(${devicename}, 211, new_value);
+            ${devicename}->queue_command(set_payload_command);
+          }
+    on_turn_off:
+      - lambda: |-
+          uint16_t checked_bit = 0x8000;
+          uint16_t new_value = id(unmasked_value_register_211);  // The original unmasked value
+          new_value &= ~checked_bit;                             // Clear and set
+          if ((new_value) != id(unmasked_value_register_211)) {
+            // ESP_LOGD("unmasked_value_register_211", "Set option to off p_s_2_acs_enablement_status 0x%x -> 0x%x", id(unmasked_value_register_211), new_value);
+            id(unmasked_value_register_211) = new_value;
+            esphome::modbus_controller::ModbusCommandItem set_payload_command = esphome::modbus_controller::ModbusCommandItem::create_write_single_command(${devicename}, 211, new_value);
+            ${devicename}->queue_command(set_payload_command);
+          }
+  - platform: template
     name: "EnSwitchPDC"
     id: "${devicename}_enswitchpdc"
     icon: mdi:eye
@@ -4286,12 +4341,15 @@ number:
     register_type: holding
     address: 275
     value_type: U_WORD
-    unit_of_measurement: float
-    multiply: 100
+    unit_of_measurement: "currency/m³"
     entity_category: config
     min_value: 0.0
     max_value: 5.0
-    step: 0.1
+    step: 0.01
+    lambda: |-
+      return static_cast<float>(x) / 100.0f;
+    write_lambda: |-
+      return {roundf(x * 100.0f)};
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Electricity price"
@@ -4300,12 +4358,15 @@ number:
     register_type: holding
     address: 276
     value_type: U_WORD
-    unit_of_measurement: "kWh"
-    multiply: 100
+    unit_of_measurement: "currency/kWh"
     entity_category: config
     min_value: 0.0
     max_value: 5.0
-    step: 0.1
+    step: 0.01
+    lambda: |-
+      return static_cast<float>(x) / 100.0f;
+    write_lambda: |-
+      return {roundf(x * 100.0f)};
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "SETHEATER Max Temperature"
@@ -4910,17 +4971,81 @@ text_sensor:
 
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "MachineType"
-    id: "${devicename}_machinetype"
+    name: "Modbus protocol version"
+    id: "${devicename}_modbus_protocol_version"
+    icon: mdi:information
     register_type: holding
     address: 187
     lambda: |-
-      uint16_t value = modbus_controller::word_from_hex_str(x, 0);
-      switch (value) {
-        case 06: return std::string("A-R290");
-        default: return std::string("Unknown");
+      char buf[6];
+      snprintf(buf, sizeof(buf), "V%.1f", stoi(x) / 10.0f);
+      return std::string(buf);
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Error Code"
+    id: "${devicename}_error_code"
+    icon: mdi:alert-circle
+    register_type: holding
+    address: 188
+    lambda: |-
+      // Extract components from the 16-bit value
+      uint16_t numX = stoi(x);
+      uint16_t main_error = numX & 0x01FF;     // Bits 0-8: Main error code (0-511)
+      uint8_t error_detail = (numX >> 9) & 0x0F; // Bits 9-12: Error detail (0-15)
+      uint8_t comp_error = (numX >> 13) & 0x07;  // Bits 13-15: Compressor error (0-7)
+
+      // Main error code table
+      const char* table[] = {
+        "No error",  // 0
+        "A0","A1","A2","A3","A4","A5","A6","A7","A8","A9",
+        "AA","AB","AC","AD","AE","AF","AH","AL","AP","AU",  // 1-20
+        "b0","b1","b2","b3","b4","b5","b6","b7","b8","b9",
+        "bA","bB","bC","bD","bE","bF","bH","bL","bP","bU",  // 21-40
+        "C0","C1","C2","C3","C4","C5","C6","C7","C8","C9",
+        "CA","CB","CC","CD","CE","CF","CH","CL","CP","CU",  // 41-60
+        "E0","E1","E2","E3","E4","E5","E6","E7","E8","E9",
+        "EA","EB","EC","ED","EE","EF","EH","EL","EP","EU",  // 61-80
+        "F0","F1","F2","F3","F4","F5","F6","F7","F8","F9",
+        "FA","FB","FC","FD","FE","FF","FH","FL","FP","FU",  // 81-100
+        "H0","H1","H2","H3","H4","H5","H6","H7","H8","H9",
+        "HA","HB","HC","HD","HE","HF","HH","HL","HP","HU",  // 101-120
+        "L0","L1","L2","L3","L4","L5","L6","L7","L8","L9",
+        "LA","LB","LC","LD","LE","LF","LH","LL","LP","LU",  // 121-140
+        "J0","J1","J2","J3","J4","J5","J6","J7","J8","J9",
+        "JA","JB","JC","JD","JE","JF","JH","JL","JP","JU",  // 141-160
+        "n0","n1","n2","n3","n4","n5","n6","n7","n8","n9",
+        "nA","nB","nC","nD","nE","nF","nH","nL","nP","nU",  // 161-180
+        "P0","P1","P2","P3","P4","P5","P6","P7","P8","P9",
+        "PA","PB","PC","PD","PE","PF","PH","PL","PP","PU",  // 181-200
+        "r0","r1","r2","r3","r4","r5","r6","r7","r8","r9",
+        "rA","rB","rC","rD","rE","rF","rH","rL","rP","rU",  // 201-220
+        "t0","t1","t2","t3","t4","t5","t6","t7","t8","t9",
+        "tA","tB","tC","tD","tE","tF","tH","tL","tP","tU",  // 221-240
+        "U0","U1","U2","U3","U4","U5","U6","U7","U8","U9",
+        "UA","UB","UC","UD","UE","UF","UH","UL","UP","UU"   // 241-260
+      };
+
+      // Build the error string
+      std::string error_str;
+
+      // Add main error code if valid
+      if (main_error < sizeof(table)/sizeof(table[0])) {
+        error_str = table[main_error];
+      } else {
+        error_str = "Invalid error code";
       }
-      return x;
+
+      // Add error detail if present
+      if (error_detail > 0) {
+        error_str += " Detail:" + std::to_string(error_detail);
+      }
+
+      // Add compressor error if present
+      if (comp_error > 0) {
+        error_str += " Comp:" + std::to_string(comp_error);
+      }
+
+      return error_str;
 interval:
   - interval: 1h
     then:
