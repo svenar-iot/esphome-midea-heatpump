@@ -71,8 +71,16 @@ esp32:
 
 # Enable logging
 logger:
-  level: INFO
+  level: DEBUG
   baud_rate: 0
+
+output:
+  - platform: gpio
+    id: orange_led_out
+    pin: GPIO18
+  - platform: gpio
+    id: green_led_out
+    pin: GPIO19
 
 # Enable Home Assistant API
 api:
@@ -4317,7 +4325,6 @@ number:
       // Extract bits 8-15 for DELTATSOL (the higher byte)
       uint8_t deltatsol_value = ((int)x >> 8) & 0xFF;
       return (int)deltatsol_value;
-
     write_lambda: |-
       uint16_t current_reg_val = id(unmasked_value_register_273); // Get the last known full register value
       uint8_t new_deltatsol_byte = x; // 'x' is the new setpoint value (int)
@@ -5063,3 +5070,31 @@ interval:
           }
 
           was_running = is_running;
+  - interval: 1s
+    then:
+      if:
+        condition:
+          wifi.connected:
+        then:
+          - output.turn_off: green_led_out
+        else:
+          - output.turn_on: green_led_out
+          - delay: 500ms
+          - output.turn_off: green_led_out
+  - interval: 500ms
+    then:
+      if:
+        condition:
+          api.connected:
+        then:
+          - output.turn_off: orange_led_out
+        else:
+          - if:
+              condition:
+                wifi.connected
+              then:
+                - output.turn_on: orange_led_out
+                - delay: 250ms
+                - output.turn_off: orange_led_out
+              else:
+                - output.turn_off: orange_led_out
