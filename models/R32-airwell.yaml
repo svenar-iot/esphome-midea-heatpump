@@ -62,7 +62,7 @@ esphome:
   friendly_name: "${description}"
   project:
     name: "${devicename}.${description}"
-    version: 7.1.2
+    version: 7.2.0
 
 esp32:
   board: esp32dev
@@ -1974,8 +1974,8 @@ switch:
             ${devicename}->queue_command(set_payload_command);
           }
   - platform: template
-    name: "Weather Compensation Zone 1 Invalid"
-    id: "${devicename}_weather_compensation_zone_1_invalid"
+    name: "Weather Compensation Zone 1"
+    id: "${devicename}_weather_compensation_zone_1"
     icon: mdi:eye
     entity_category: config
     restore_mode: DISABLED
@@ -2005,8 +2005,8 @@ switch:
             ${devicename}->queue_command(set_payload_command);
           }
   - platform: template
-    name: "Weather Compensation Zone 2 Invalid"
-    id: "${devicename}_weather_compensation_zone_2_invalid"
+    name: "Weather Compensation Zone 2"
+    id: "${devicename}_weather_compensation_zone_2"
     icon: mdi:eye
     entity_category: config
     restore_mode: DISABLED
@@ -3882,13 +3882,16 @@ text_sensor:
           return {"Defrosting"};
         } else if (id(${devicename}_load_output_sv1).state) {
           return {"DHW"};
-        } else if (id(${devicename}_status_bit_1_heating_mode_set_by_room_thermostat).state
-          || id(${devicename}_water_flow_temperature_control_zone_1).state) {
-          return {"Heating"};
-        } else if (id(${devicename}_status_bit_1_cooling_mode_set_by_room_thermostat).state
-          || id(${devicename}_room_temperature_control).state
-          || id(${devicename}_water_flow_temperature_control_zone_2).state) {
-          return {"Cooling"};
+        } else if (id(${devicename}_water_flow_temperature_control_zone_1).state || id(${devicename}_water_flow_temperature_control_zone_2).state) {
+          // The heat pump is on for heating or cooling
+          if (id(${devicename}_status_bit_1_heating_mode_set_by_room_thermostat).state || id(${devicename}_operational_mode).state == "Heat") {
+            return {"Heating"};
+          } else if (id(${devicename}_status_bit_1_cooling_mode_set_by_room_thermostat).state || id(${devicename}_operational_mode).state == "Cool") {
+            return {"Cooling"};
+          } else {
+            // Return "Heating" if we cannot determine the correct state, for example when operational_mode is set to Auto
+            return {"Heating"};
+          }
         } else {
           return {"Unknown"};
         }
