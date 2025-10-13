@@ -62,7 +62,7 @@ esphome:
   friendly_name: "${description}"
   project:
     name: "${devicename}.${description}"
-    version: 7.2.0
+    version: 7.3.0
 
 esp32:
   board: esp32dev
@@ -349,6 +349,8 @@ sensor:
     name: Uptime
     id: "${devicename}_uptime"
     icon: mdi:timelapse
+  - platform: wifi_signal
+    name: "WiFi Signal Strength"
   - platform: template
     name: "Coefficient of Performance"
     id: "${devicename}_coefficient_of_performance"
@@ -386,22 +388,6 @@ sensor:
       // Update the global var unmasked_value_register_5
       id(unmasked_value_register_5) = x;
       return x;
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
-    name: "Forced Water Tank Heating"
-    id: "${devicename}_forced_water_tank_heating"
-    icon: mdi:fire-alert
-    register_type: holding
-    address: 0x7
-    value_type: U_WORD
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
-    name: "Forced Tank Backup Heater"
-    id: "${devicename}_forced_tbh"
-    icon: mdi:fire-alert
-    register_type: holding
-    address: 0x8
-    value_type: U_WORD
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Forced Hydraulic Module Rear Electric Heater 1"
@@ -743,8 +729,6 @@ sensor:
     unit_of_measurement: A
     device_class: "current"
     state_class: "measurement"
-    filters:
-      - multiply: 0.1
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "DC Bus Voltage"
@@ -811,6 +795,7 @@ sensor:
     register_type: holding
     address: 0x8b
     value_type: U_WORD
+    unit_of_measurement: "kW"
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Ability Of Hydraulic Module"
@@ -1079,6 +1064,13 @@ sensor:
       }
 
 binary_sensor:
+  - platform: gpio
+    pin: GPIO22
+    id: factory_reset_button
+    name: "Factory Reset Button"
+    on_press:
+      then:
+        - switch.turn_on: ${devicename}_restart_with_factory_default_settings
   - platform: template
     name: "Compressor Running"
     id: compressor_running
@@ -2038,8 +2030,8 @@ switch:
 
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Forced Water Tank Heating On/Off"
-    id: "${devicename}_forced_water_tank_heating_on_off"
+    name: "Forced Water Tank Heating"
+    id: "${devicename}_forced_water_tank_heating"
     icon: mdi:fire-alert
     address: 0x7
     register_type: holding
@@ -2059,7 +2051,29 @@ switch:
       ${devicename}->queue_command(set_payload_command);
 
       return {};
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Forced Tank Backup Heater"
+    id: "${devicename}_forced_tbh"
+    icon: mdi:fire-alert
+    address: 0x8
+    register_type: holding
+    entity_category: config
+    write_lambda: |-
+      uint16_t value = 0;
 
+      if (x == 1) {
+        // ESP_LOGI("main", "Set forced tank backup heater ON");
+        value = 1;
+      } else {
+        // ESP_LOGI("main", "Set forced tank backup heater OFF");
+        value = 2;
+      }
+
+      esphome::modbus_controller::ModbusCommandItem set_payload_command = esphome::modbus_controller::ModbusCommandItem::create_write_single_command(${devicename}, 0x8, value);
+      ${devicename}->queue_command(set_payload_command);
+
+      return {};
   - platform: template
     name: "Parameter Setting 1 Heating And Cooling First Or Water First"
     id: "${devicename}_parameter_setting_1_heating_and_cooling_first_or_water_first"
@@ -3870,6 +3884,10 @@ text_sensor:
     id: "${devicename}_esphome_version"
     icon: mdi:information
     hide_timestamp: true
+  - platform: wifi_info
+    mac_address:
+      name: ESP Mac Wifi Address
+      id: wifi_mac_address
   - platform: template
     name: "Active State"
     id: "${devicename}_active_state"
@@ -4330,7 +4348,6 @@ interval:
           - output.turn_on: green_led_out
           - delay: 500ms
           - output.turn_off: green_led_out
-
   - interval: 500ms
     then:
       if:
@@ -4340,14 +4357,14 @@ interval:
           - output.turn_off: orange_led_out
         else:
           - if:
-              condition: wifi.connected
+              condition:
+                wifi.connected
               then:
                 - output.turn_on: orange_led_out
                 - delay: 250ms
                 - output.turn_off: orange_led_out
               else:
                 - output.turn_off: orange_led_out
-
   - interval: 1h
     then:
       - lambda: |-
