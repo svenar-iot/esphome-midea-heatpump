@@ -62,7 +62,7 @@ esphome:
   friendly_name: "${description}"
   project:
     name: "${devicename}.${description}"
-    version: 7.3.0
+    version: 8.0.0
 
 esp32:
   board: esp32dev
@@ -1053,7 +1053,8 @@ sensor:
         {"Heating", 1},
         {"Cooling", 2},
         {"DHW", 3},
-        {"Defrosting", 4}
+        {"Defrosting", 4},
+        {"Idle", 5}
       };
 
       auto state_item = status_map.find(id(${devicename}_active_state).state);
@@ -1344,7 +1345,6 @@ binary_sensor:
     register_type: holding
     address: 0x80
     bitmask: 0x8000
-
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Load Output Electric Heater IBH 1"
@@ -1356,7 +1356,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Load Output Electric Heater IBH 2"
-    id: "${devicename}_load_output_reserved"
+    id: "${devicename}_load_output_electric_heater_ibh2"
     icon: mdi:head-question-outline
     register_type: holding
     address: 0x81
@@ -1371,8 +1371,8 @@ binary_sensor:
     bitmask: 0x4
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Load Output Water Pump PUMP_I"
-    id: "${devicename}_load_output_water_pump_pump_i"
+    name: "Load Output Internal Circulation Pump PUMP_I"
+    id: "${devicename}_load_output_internal_circulation_pump_pump_i"
     icon: mdi:pump
     register_type: holding
     address: 0x81
@@ -1387,40 +1387,40 @@ binary_sensor:
     bitmask: 0x10
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Load Output Reserved BIT 5"
-    id: "${devicename}_load_output_reserved_bit_5"
+    name: "Load Output SV 2"
+    id: "${devicename}_load_output_sv2"
     icon: mdi:head-question-outline
     register_type: holding
     address: 0x81
     bitmask: 0x20
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Load Output External Water Pump P_o"
-    id: "${devicename}_load_output_external_water_pump_p_o"
+    name: "Load Output External Circulation Pump PUMP_O"
+    id: "${devicename}_load_output_external_circulation_pump_pump_o"
     icon: mdi:pump
     register_type: holding
     address: 0x81
     bitmask: 0x40
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Load Output Water Return Water P_d"
-    id: "${devicename}_load_output_water_return_water_p_d"
+    name: "Load Output Water Return Water Pump PUMP_D"
+    id: "${devicename}_load_output_water_return_water_pump_d"
     icon: mdi:pump
     register_type: holding
     address: 0x81
     bitmask: 0x80
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Load Output Mixed Water Pump P_c"
-    id: "${devicename}_load_output_mixed_water_pump_p_c"
+    name: "Load Output Mixed Water Pump PUMP_C"
+    id: "${devicename}_load_output_mixed_water_pump_pump_c"
     icon: mdi:pump
     register_type: holding
     address: 0x81
     bitmask: 0x100
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Load Output SV 2"
-    id: "${devicename}_load_output_sv2"
+    name: "Load Output SV 3"
+    id: "${devicename}_load_output_sv3"
     icon: mdi:eye
     register_type: holding
     address: 0x81
@@ -1435,8 +1435,8 @@ binary_sensor:
     bitmask: 0x400
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Load Output Solar Water Pump"
-    id: "${devicename}_load_output_solar_water_pump"
+    name: "Load Output Solar Water Pump PUMP_S"
+    id: "${devicename}_load_output_solar_water_pump_pump_s"
     icon: mdi:eye
     register_type: holding
     address: 0x81
@@ -1638,7 +1638,7 @@ binary_sensor:
     lambda: |-
       int fan_speed = id(${devicename}_fan_speed).state;
       int compressor_frequency = id(${devicename}_compressor_operating_frequency).state;
-      bool external_water_pump_on = id(${devicename}_load_output_external_water_pump_p_o).state;
+      bool external_water_pump_on = id(${devicename}_load_output_external_circulation_pump_pump_o).state;
 
       // If fan_speed is above 0, compressor_frequency is above 0 or external_water_pump_on is true,
       // then the outside unit of the heat pump system is running
@@ -3894,24 +3894,22 @@ text_sensor:
     icon: mdi:power
     entity_category: "diagnostic"
     lambda: |-
-      if (id(${devicename}_load_output_run).state) {
-        // The heat pump is on
-        if (id(${devicename}_status_bit_1_defrosting).state) {
-          return {"Defrosting"};
-        } else if (id(${devicename}_load_output_sv1).state) {
-          return {"DHW"};
-        } else if (id(${devicename}_water_flow_temperature_control_zone_1).state || id(${devicename}_water_flow_temperature_control_zone_2).state) {
-          // The heat pump is on for heating or cooling
-          if (id(${devicename}_status_bit_1_heating_mode_set_by_room_thermostat).state || id(${devicename}_operational_mode).state == "Heat") {
-            return {"Heating"};
-          } else if (id(${devicename}_status_bit_1_cooling_mode_set_by_room_thermostat).state || id(${devicename}_operational_mode).state == "Cool") {
-            return {"Cooling"};
+      if (id(${devicename}_operating_mode).state != "OFF") {
+        if (id(${devicename}_load_output_run).state) {
+          // The heat pump is on
+          if (id(${devicename}_status_bit_1_defrosting).state) {
+            return {"Defrosting"};
+          } else if (id(${devicename}_load_output_sv1).state) {
+            return {"DHW"};
           } else {
-            // Return "Heating" if we cannot determine the correct state, for example when operational_mode is set to Auto
-            return {"Heating"};
+            // Return the state from "Operating Mode", which can be Cooling or Heating
+            return id(${devicename}_operating_mode).state;
           }
         } else {
-          return {"Unknown"};
+          // The heat pumps operating mode is on (not OFF), but is not "Heating", "Cooling", or "DHW".
+          // In this case the heat pump is Idle, which is for example the case when it is preparing for a DHW
+          // run or between "Heating" sessions
+          return {"Idle"};
         }
       } else {
         // The heat pump is off
