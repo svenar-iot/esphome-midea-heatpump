@@ -58,6 +58,7 @@ globals:
 
 esphome:
   name: "${devicename}"
+  name_add_mac_suffix: true
   comment: "${description}"
   friendly_name: "${description}"
   project:
@@ -68,6 +69,10 @@ esp32:
   board: esp32dev
   framework:
     type: esp-idf
+
+dashboard_import:
+  package_import_url: github://svenar-iot/esphome-midea-heatpump/models/R32-generic.yaml
+  import_full_config: false
 
 # Enable logging
 logger:
