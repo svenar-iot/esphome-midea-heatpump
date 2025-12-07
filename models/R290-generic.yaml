@@ -62,7 +62,7 @@ esphome:
   friendly_name: "${description}"
   project:
     name: "${devicename}.${description}"
-    version: 7.2.0
+    version: 9.0.0
 
 esp32:
   board: esp32dev
@@ -158,9 +158,9 @@ select:
     value_type: U_WORD
     optimistic: true
     optionsmap:
-      "Fan Coil Unit": 0
-      "Radiator": 1
-      "Underfloor Heating": 2
+      "Underfloor Heating": 0
+      "Fan Coil Unit": 1
+      "Radiator": 2
     lambda: |-
       // Update the global var unmasked_value_register_272
       id(unmasked_value_register_272) = x;
@@ -176,11 +176,11 @@ select:
       // ESP_LOGI("Register 272","zone1_h_emission is %d"zone2_h_emission);
       std::string string_result;
       if (zone1_h_emission == 0) {
-        string_result = "Fan Coil Unit";
-      } else if (zone1_h_emission == 1) {
-        string_result = "Radiator";
-      } else if (zone1_h_emission == 2) {
         string_result = "Underfloor Heating";
+      } else if (zone1_h_emission == 1) {
+        string_result = "Fan Coil Unit";
+      } else if (zone1_h_emission == 2) {
+        string_result = "Radiator";
       } else {
         string_result = "Unknown: ";
         string_result += std::to_string(zone1_h_emission);
@@ -205,9 +205,9 @@ select:
     value_type: U_WORD
     optimistic: true
     optionsmap:
-      "Fan Coil Unit": 0
-      "Radiator": 1
-      "Underfloor Heating": 2
+      "Underfloor Heating": 0
+      "Fan Coil Unit": 1
+      "Radiator": 2
     lambda: |-
       // Updating the global var unmasked_value_register_272 is already done
       // in the first part of this register
@@ -222,11 +222,11 @@ select:
       // ESP_LOGD("Register 272","zone2_h_emission is %d", zone2_h_emission);
       std::string string_result;
       if (zone2_h_emission == 0) {
-        string_result = "Fan Coil Unit";
-      } else if (zone2_h_emission == 1) {
-        string_result = "Radiator";
-      } else if (zone2_h_emission == 2) {
         string_result = "Underfloor Heating";
+      } else if (zone2_h_emission == 1) {
+        string_result = "Fan Coil Unit";
+      } else if (zone2_h_emission == 2) {
+        string_result = "Radiator";
       } else {
         string_result = "Unknown: ";
         string_result += std::to_string(zone2_h_emission);
@@ -251,9 +251,9 @@ select:
     value_type: U_WORD
     optimistic: true
     optionsmap:
-      "Fan Coil Unit": 0
-      "Radiator": 1
-      "Underfloor Heating": 2
+      "Underfloor Heating": 0
+      "Fan Coil Unit": 1
+      "Radiator": 2
     lambda: |-
       // Updating the global var unmasked_value_register_272 is already done
       // in the first part of this register
@@ -268,11 +268,11 @@ select:
       // ESP_LOGD("Register 272","zone1_c_emission is %d", zone1_c_emission);
       std::string string_result;
       if (zone1_c_emission == 0) {
-        string_result = "Fan Coil Unit";
-      } else if (zone1_c_emission == 1) {
-        string_result = "Radiator";
-      } else if (zone1_c_emission == 2) {
         string_result = "Underfloor Heating";
+      } else if (zone1_c_emission == 1) {
+        string_result = "Fan Coil Unit";
+      } else if (zone1_c_emission == 2) {
+        string_result = "Radiator";
       } else {
         string_result = "Unknown: ";
         string_result += std::to_string(zone1_c_emission);
@@ -297,9 +297,9 @@ select:
     value_type: U_WORD
     optimistic: true
     optionsmap:
-      "Fan Coil Unit": 0
-      "Radiator": 1
-      "Underfloor Heating": 2
+      "Underfloor Heating": 0
+      "Fan Coil Unit": 1
+      "Radiator": 2
     lambda: |-
       // Updating the global var unmasked_value_register_272 is already done
       // in the first part of this register
@@ -314,11 +314,11 @@ select:
       // ESP_LOGI("Register 272","zone2_c_emission is %d", zone2_c_emission);
       std::string string_result;
       if (zone2_c_emission == 0) {
-        string_result = "Fan Coil Unit";
-      } else if (zone2_c_emission == 1) {
-        string_result = "Radiator";
-      } else if (zone2_c_emission == 2) {
         string_result = "Underfloor Heating";
+      } else if (zone2_c_emission == 1) {
+        string_result = "Fan Coil Unit";
+      } else if (zone2_c_emission == 2) {
+        string_result = "Radiator";
       } else {
         string_result = "Unknown: ";
         string_result += std::to_string(zone2_c_emission);
@@ -340,7 +340,7 @@ select:
     name: "Solar Function Mode"
     id: "${devicename}_solar_function_mode"
     icon: mdi:solar-power-variant
-    address: 273
+    address: 0x111
     value_type: U_WORD
     optimistic: true
     optionsmap:
@@ -394,6 +394,8 @@ sensor:
     name: Uptime
     id: "${devicename}_uptime"
     icon: mdi:timelapse
+  - platform: wifi_signal
+    name: "WiFi Signal Strength"
   - platform: template
     name: "Coefficient of Performance"
     id: "${devicename}_coefficient_of_performance"
@@ -431,22 +433,6 @@ sensor:
       // Update the global var unmasked_value_register_5
       id(unmasked_value_register_5) = x;
       return x;
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
-    name: "Forced Water Tank Heating"
-    id: "${devicename}_forced_water_tank_heating"
-    icon: mdi:fire-alert
-    register_type: holding
-    address: 0x7
-    value_type: U_WORD
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
-    name: "Forced Tank Backup Heater"
-    id: "${devicename}_forced_tbh"
-    icon: mdi:fire-alert
-    register_type: holding
-    address: 0x8
-    value_type: U_WORD
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Forced Hydraulic Module Rear Electric Heater 1"
@@ -522,8 +508,8 @@ sensor:
     state_class: "measurement"
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Condensor Temperature T3"
-    id: "${devicename}_condensor_temperature_t3"
+    name: "Condenser Temperature T3"
+    id: "${devicename}_condenser_temperature_t3"
     icon: mdi:temperature-celsius
     register_type: holding
     address: 0x6a
@@ -788,8 +774,6 @@ sensor:
     unit_of_measurement: A
     device_class: "current"
     state_class: "measurement"
-    filters:
-      - multiply: 0.1
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "DC Bus Voltage"
@@ -856,6 +840,7 @@ sensor:
     register_type: holding
     address: 0x8b
     value_type: U_WORD
+    unit_of_measurement: "kW"
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Ability Of Hydraulic Module"
@@ -892,6 +877,7 @@ sensor:
     value_type: U_DWORD
     filters:
       - lambda: return x * 0.01;
+    accuracy_decimals: 2
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Power Output"
@@ -906,7 +892,7 @@ sensor:
 
     filters:
       - lambda: return x * 0.01;
-
+    accuracy_decimals: 2
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Temperature Upper Limit Of T1S Cooling Zone 1"
@@ -1077,23 +1063,6 @@ sensor:
       // Update the global var unmasked_value_register_211
       id(unmasked_value_register_211) = x;
       return x;
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
-    name: "Comfort Parameter Reserved 3"
-    id: "${devicename}_comfort_parameter_3"
-    icon: mdi:head-question-outline
-    register_type: holding
-    address: 0xfd
-    value_type: U_WORD
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
-    name: "Comfort Parameter Reserved 4"
-    id: "${devicename}_comfort_parameter_4"
-    icon: mdi:head-question-outline
-    register_type: holding
-    address: 0xfe
-    value_type: U_WORD
-
   - platform: template
     name: "T1S DHW"
     id: "${devicename}_t1s_dhw"
@@ -1108,6 +1077,19 @@ sensor:
       return t1s_dhw;
 
   - platform: template
+    name: "Water Temperature Delta"
+    id: "${devicename}_water_temperature_delta"
+    icon: mdi:thermometer
+    unit_of_measurement: "°C"
+    device_class: "temperature"
+    state_class: "measurement"
+    lambda: |-
+      int inlet = id(${devicename}_water_inlet_temperature).state;
+      int outlet = id(${devicename}_water_outlet_temperature).state;
+      int delta = outlet - inlet;
+      return delta;
+
+  - platform: template
     name: "Active State Map"
     id: "${devicename}_active_state_map"
     unit_of_measurement: ""
@@ -1118,7 +1100,8 @@ sensor:
         {"Heating", 1},
         {"Cooling", 2},
         {"DHW", 3},
-        {"Defrosting", 4}
+        {"Defrosting", 4},
+        {"Idle", 5}
       };
 
       auto state_item = status_map.find(id(${devicename}_active_state).state);
@@ -1131,46 +1114,47 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Real-time heating Capacity"
-    id: "${devicename}_real_time_heating_capacity"
+    id: "${devicename}_realtime_heating_capacity"
     icon: mdi:lightning-bolt
     register_type: holding
-    address: 148
+    address: 0x94
     value_type: U_WORD
-    unit_of_measurement: kW
+    unit_of_measurement: "kW"
     accuracy_decimals: 2
     filters:
       - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Real-time renewable heating capacity"
-    id: "${devicename}_real_time_renewable_heating_capacity"
+    id: "${devicename}_realtime_renewable_heating_capacity"
     icon: mdi:lightning-bolt
     register_type: holding
-    address: 149
+    address: 0x95
     value_type: U_WORD
-    unit_of_measurement: kW
+    unit_of_measurement: "kW"
     accuracy_decimals: 2
     filters:
       - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Real-time heating power consumption"
-    id: "${devicename}_real_time_heating_power_consumption"
+    id: "${devicename}_realtime_heating_power_consumption"
     icon: mdi:lightning-bolt
     register_type: holding
-    address: 150
+    address: 0x96
     value_type: U_WORD
-    unit_of_measurement: kW
+    unit_of_measurement: "kW"
     accuracy_decimals: 2
     filters:
       - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Real-time heating COP"
-    id: "${devicename}_real_time_heating_cop"
+    id: "${devicename}_realtime_heating_cop"
     icon: mdi:copyleft
     register_type: holding
-    address: 151
+    address: 0x97
+    value_type: U_WORD
     unit_of_measurement: "COP"
     accuracy_decimals: 2
     filters:
@@ -1184,7 +1168,7 @@ sensor:
     unit_of_measurement: "kWh"
     device_class: energy
     state_class: total_increasing
-    address: 152
+    address: 0x98
     value_type: U_DWORD
     accuracy_decimals: 2
     filters:
@@ -1198,7 +1182,7 @@ sensor:
     unit_of_measurement: "kWh"
     device_class: energy
     state_class: total_increasing
-    address: 154
+    address: 0x9A
     value_type: U_DWORD
     accuracy_decimals: 2
     filters:
@@ -1212,7 +1196,7 @@ sensor:
     unit_of_measurement: "kWh"
     device_class: energy
     state_class: total_increasing
-    address: 156
+    address: 0x9C
     value_type: U_DWORD
     accuracy_decimals: 2
     filters:
@@ -1226,7 +1210,7 @@ sensor:
     unit_of_measurement: "kWh"
     device_class: energy
     state_class: total_increasing
-    address: 158
+    address: 0x9E
     value_type: U_DWORD
     accuracy_decimals: 2
     filters:
@@ -1240,7 +1224,7 @@ sensor:
     unit_of_measurement: "kWh"
     device_class: energy
     state_class: total_increasing
-    address: 160
+    address: 0xA0
     value_type: U_DWORD
     accuracy_decimals: 2
     filters:
@@ -1254,7 +1238,7 @@ sensor:
     unit_of_measurement: "kWh"
     device_class: energy
     state_class: total_increasing
-    address: 162
+    address: 0xA2
     value_type: U_DWORD
     accuracy_decimals: 2
     filters:
@@ -1265,7 +1249,7 @@ sensor:
     id: "${devicename}_total_cop_in_heating_mode_for_master_unit"
     icon: mdi:copyleft
     register_type: holding
-    address: 164
+    address: 0xA4
     unit_of_measurement: "COP"
     accuracy_decimals: 2
     filters:
@@ -1279,7 +1263,7 @@ sensor:
     unit_of_measurement: "kWh"
     device_class: energy
     state_class: total_increasing
-    address: 165
+    address: 0xA5
     value_type: U_DWORD
     accuracy_decimals: 2
     filters:
@@ -1293,7 +1277,7 @@ sensor:
     unit_of_measurement: "kWh"
     device_class: energy
     state_class: total_increasing
-    address: 167
+    address: 0xA7
     value_type: U_DWORD
     accuracy_decimals: 2
     filters:
@@ -1307,7 +1291,7 @@ sensor:
     unit_of_measurement: "kWh"
     device_class: energy
     state_class: total_increasing
-    address: 169
+    address: 0xA9
     value_type: U_DWORD
     accuracy_decimals: 2
     filters:
@@ -1318,7 +1302,7 @@ sensor:
     id: "${devicename}_total_cop_in_cooling_mode_for_master_unit"
     icon: mdi:copyleft
     register_type: holding
-    address: 171
+    address: 0xAB
     unit_of_measurement: "COP"
     accuracy_decimals: 2
     filters:
@@ -1332,7 +1316,7 @@ sensor:
     unit_of_measurement: "kWh"
     device_class: energy
     state_class: total_increasing
-    address: 172
+    address: 0xAC
     value_type: U_DWORD
     accuracy_decimals: 2
     filters:
@@ -1346,7 +1330,7 @@ sensor:
     unit_of_measurement: "kWh"
     device_class: energy
     state_class: total_increasing
-    address: 174
+    address: 0xAE
     value_type: U_DWORD
     accuracy_decimals: 2
     filters:
@@ -1360,7 +1344,7 @@ sensor:
     unit_of_measurement: "kWh"
     device_class: energy
     state_class: total_increasing
-    address: 176
+    address: 0xB0
     value_type: U_DWORD
     accuracy_decimals: 2
     filters:
@@ -1371,99 +1355,190 @@ sensor:
     id: "${devicename}_total_cop_in_dhw_mode_for_master_unit"
     icon: mdi:copyleft
     register_type: holding
-    address: 178
+    address: 0xB2
     unit_of_measurement: "COP"
     accuracy_decimals: 2
     filters:
       - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Real-time cooling energy produced for master unit"
-    id: "${devicename}_realtime_cooling_energy_produced_for_master_unit"
-    icon: mdi:snowflake
+    name: "Real-time renewable cooling capacity"
+    id: "${devicename}_realtime_renewable_cooling_capacity"
+    icon: mdi:lightning-bolt
     register_type: holding
-    address: 179
-    unit_of_measurement: "kWh"
-    accuracy_decimals: 2
-    filters:
-      - lambda: return x * 0.01;
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
-    name: "Real-time cooling renewable energy produced for master unit"
-    id: "${devicename}_realtime_cooling_renewable_energy_produced_for_master_unit"
-    icon: mdi:snowflake
-    register_type: holding
-    address: 180
-    unit_of_measurement: "kWh"
-    accuracy_decimals: 2
-    filters:
-      - lambda: return x * 0.01;
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
-    name: "Real-time cooling power consumed for master unit"
-    id: "${devicename}_realtime_cooling_power_consumed_for_master_unit"
-    icon: mdi:flash
-    register_type: holding
-    address: 181
+    address: 0xB3
+    value_type: U_WORD
     unit_of_measurement: "kW"
     accuracy_decimals: 2
     filters:
       - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Real-time EER in cooling mode for master unit"
-    id: "${devicename}_realtime_eer_cooling_mode_for_master_unit"
-    icon: mdi:alpha-e-circle
+    name: "Real-time cooling capacity"
+    id: "${devicename}_realtime_cooling_capacity"
+    icon: mdi:lightning-bolt
     register_type: holding
-    address: 182
-    unit_of_measurement: "EER"
-    accuracy_decimals: 2
-    filters:
-      - lambda: return x * 0.01;
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
-    name: "Real-time DHW energy produced for master unit"
-    id: "${devicename}_realtime_dhw_energy_produced_for_master_unit"
-    icon: mdi:water-boiler
-    register_type: holding
-    address: 183
-    unit_of_measurement: "kWh"
-    accuracy_decimals: 2
-    filters:
-      - lambda: return x * 0.01;
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
-    name: "Real-time DHW renewable energy produced for master unit"
-    id: "${devicename}_realtime_dhw_renewable_energy_produced_for_master_unit"
-    icon: mdi:water-boiler
-    register_type: holding
-    address: 184
-    unit_of_measurement: "kWh"
-    accuracy_decimals: 2
-    filters:
-      - lambda: return x * 0.01;
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
-    name: "Real-time DHW power consumed for master unit"
-    id: "${devicename}_realtime_dhw_power_consumed_for_master_unit"
-    icon: mdi:flash
-    register_type: holding
-    address: 185
+    address: 0xB4
+    value_type: U_WORD
     unit_of_measurement: "kW"
     accuracy_decimals: 2
     filters:
       - lambda: return x * 0.01;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Real-time COP in DHW mode for master unit"
-    id: "${devicename}_realtime_cop_dhw_mode_for_master_unit"
+    name: "Real-time cooling power consumption"
+    id: "${devicename}_realtime_cooling_power_consumption"
+    icon: mdi:lightning-bolt
+    register_type: holding
+    address: 0xB5
+    value_type: U_WORD
+    unit_of_measurement: "kW"
+    accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Real-time cooling EER"
+    id: "${devicename}_realtime_cooling_eer"
     icon: mdi:copyleft
     register_type: holding
-    address: 186
+    address: 0xB6
+    value_type: U_WORD
     unit_of_measurement: "COP"
     accuracy_decimals: 2
     filters:
       - lambda: return x * 0.01;
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Real-time DHW heating capacity"
+    id: "${devicename}_realtime_dhw_heating_capacity"
+    icon: mdi:lightning-bolt
+    register_type: holding
+    address: 0xB7
+    value_type: U_WORD
+    unit_of_measurement: "kW"
+    accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Real-time renewable DHW heating capacity"
+    id: "${devicename}_realtime_renewable_dhw_heating_capacity"
+    icon: mdi:lightning-bolt
+    register_type: holding
+    address: 0xB8
+    value_type: U_WORD
+    unit_of_measurement: "kW"
+    accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Real-time DHW heating power consumption"
+    id: "${devicename}_realtime_dhw_heating_power_consumption"
+    icon: mdi:lightning-bolt
+    register_type: holding
+    address: 0xB9
+    value_type: U_WORD
+    unit_of_measurement: "kW"
+    accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Real-time DHW heating COP"
+    id: "${devicename}_realtime_dhw_heating_cop"
+    icon: mdi:copyleft
+    register_type: holding
+    address: 0xBA
+    value_type: U_WORD
+    unit_of_measurement: "COP"
+    accuracy_decimals: 2
+    filters:
+      - lambda: return x * 0.01;
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "TL Outdoor Refrigerant Pipe Temperature"
+    id: "${devicename}_tl_outdoor_refrigerant_pipe_temperature"
+    icon: mdi:thermometer
+    register_type: holding
+    address: 0xBF
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    device_class: temperature
+    accuracy_decimals: 0
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Pump Internal PWM"
+    id: "${devicename}_pump_internal_pwm"
+    icon: mdi:pump
+    register_type: holding
+    address: 0xC0
+    value_type: U_WORD
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    filters:
+      - lambda: return x * 0.1;
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "T9i Second PHE Inlet Temperature"
+    id: "${devicename}_t9i_second_phe_inlet_temperature"
+    icon: mdi:thermometer
+    register_type: holding
+    address: 0xC1
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    device_class: temperature
+    accuracy_decimals: 1
+    filters:
+      - lambda: |-
+          if (x == 0x7fff) return {};
+          return x * 0.1;
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "T9o Second PHE Outlet Temperature"
+    id: "${devicename}_t9o_second_phe_outlet_temperature"
+    icon: mdi:thermometer
+    register_type: holding
+    address: 0xC2
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    device_class: temperature
+    accuracy_decimals: 1
+    filters:
+      - lambda: |-
+          if (x == 0x7fff) return {};
+          return x * 0.1;
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "EXV2 Expansion Valve Openness"
+    id: "${devicename}_exv2_expansion_valve_openness"
+    icon: mdi:valve
+    register_type: holding
+    address: 0xC3
+    value_type: U_WORD
+    unit_of_measurement: "P"
+    accuracy_decimals: 0
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "EXV3 Expansion Valve Openness"
+    id: "${devicename}_exv3_expansion_valve_openness"
+    icon: mdi:valve
+    register_type: holding
+    address: 0xC4
+    value_type: U_WORD
+    unit_of_measurement: "P"
+    accuracy_decimals: 0
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Fan2 Speed"
+    id: "${devicename}_fan2_speed"
+    icon: mdi:fan
+    register_type: holding
+    address: 0xC5
+    value_type: U_WORD
+    unit_of_measurement: "r/min"
+    accuracy_decimals: 0
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "register_273"
@@ -1471,7 +1546,7 @@ sensor:
     icon: mdi:state-machine
     internal: true
     register_type: holding
-    address: 273
+    address: 0x111
     value_type: U_WORD
     lambda: |-
       // Update the global var unmasked_value_register_273
@@ -1484,7 +1559,7 @@ sensor:
     icon: mdi:state-machine
     internal: true
     register_type: holding
-    address: 274
+    address: 0x112
     value_type: U_WORD
     lambda: |-
       // Update the global var unmasked_value_register_274
@@ -1497,7 +1572,7 @@ sensor:
     icon: mdi:state-machine
     internal: true
     register_type: holding
-    address: 277
+    address: 0x115
     value_type: U_WORD
     lambda: |-
       // Update the global var unmasked_value_register_277
@@ -1510,13 +1585,20 @@ sensor:
     icon: mdi:state-machine
     internal: true
     register_type: holding
-    address: 278
+    address: 0x116
     value_type: U_WORD
     lambda: |-
       // Update the global var unmasked_value_register_278
       id(unmasked_value_register_278) = x;
       return x;
 binary_sensor:
+  - platform: gpio
+    pin: GPIO22
+    id: factory_reset_button
+    name: "Factory Reset Button"
+    on_press:
+      then:
+        - switch.turn_on: ${devicename}_restart_with_factory_default_settings
   - platform: template
     name: "Compressor Running"
     id: compressor_running
@@ -1790,7 +1872,6 @@ binary_sensor:
     register_type: holding
     address: 0x80
     bitmask: 0x8000
-
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Load Output Electric Heater IBH 1"
@@ -1802,7 +1883,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Load Output Electric Heater IBH 2"
-    id: "${devicename}_load_output_reserved"
+    id: "${devicename}_load_output_electric_heater_ibh2"
     icon: mdi:head-question-outline
     register_type: holding
     address: 0x81
@@ -1817,8 +1898,8 @@ binary_sensor:
     bitmask: 0x4
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Load Output Water Pump PUMP_I"
-    id: "${devicename}_load_output_water_pump_pump_i"
+    name: "Load Output Internal Circulation Pump PUMP_I"
+    id: "${devicename}_load_output_internal_circulation_pump_pump_i"
     icon: mdi:pump
     register_type: holding
     address: 0x81
@@ -1833,40 +1914,40 @@ binary_sensor:
     bitmask: 0x10
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Load Output Reserved BIT 5"
-    id: "${devicename}_load_output_reserved_bit_5"
+    name: "Load Output SV 2"
+    id: "${devicename}_load_output_sv2"
     icon: mdi:head-question-outline
     register_type: holding
     address: 0x81
     bitmask: 0x20
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Load Output External Water Pump P_o"
-    id: "${devicename}_load_output_external_water_pump_p_o"
+    name: "Load Output External Circulation Pump PUMP_O"
+    id: "${devicename}_load_output_external_circulation_pump_pump_o"
     icon: mdi:pump
     register_type: holding
     address: 0x81
     bitmask: 0x40
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Load Output Water Return Water P_d"
-    id: "${devicename}_load_output_water_return_water_p_d"
+    name: "Load Output Water Return Water Pump PUMP_D"
+    id: "${devicename}_load_output_water_return_water_pump_d"
     icon: mdi:pump
     register_type: holding
     address: 0x81
     bitmask: 0x80
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Load Output Mixed Water Pump P_c"
-    id: "${devicename}_load_output_mixed_water_pump_p_c"
+    name: "Load Output Mixed Water Pump PUMP_C"
+    id: "${devicename}_load_output_mixed_water_pump_pump_c"
     icon: mdi:pump
     register_type: holding
     address: 0x81
     bitmask: 0x100
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Load Output SV 2"
-    id: "${devicename}_load_output_sv2"
+    name: "Load Output SV 3"
+    id: "${devicename}_load_output_sv3"
     icon: mdi:eye
     register_type: holding
     address: 0x81
@@ -1881,8 +1962,8 @@ binary_sensor:
     bitmask: 0x400
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Load Output Solar Water Pump"
-    id: "${devicename}_load_output_solar_water_pump"
+    name: "Load Output Solar Water Pump PUMP_S"
+    id: "${devicename}_load_output_solar_water_pump_pump_s"
     icon: mdi:eye
     register_type: holding
     address: 0x81
@@ -2072,13 +2153,19 @@ binary_sensor:
     lambda: "return (id(unmasked_value_register_210) & 0x4000) == 0x4000; // Return status bit14"
 
   - platform: template
+    name: "Parameter Setting 2 Reserved BIT 15"
+    id: "${devicename}_parameter_setting_2_reserved_bit_15"
+    icon: mdi:head-question-outline
+    lambda: "return (id(unmasked_value_register_211) & 0x8000) == 0x8000; // Return status bit15"
+
+  - platform: template
     name: "Heat pump running"
     id: "${devicename}_heat_pump_running"
     icon: mdi:power
     lambda: |-
       int fan_speed = id(${devicename}_fan_speed).state;
       int compressor_frequency = id(${devicename}_compressor_operating_frequency).state;
-      bool external_water_pump_on = id(${devicename}_load_output_external_water_pump_p_o).state;
+      bool external_water_pump_on = id(${devicename}_load_output_external_circulation_pump_pump_o).state;
 
       // If fan_speed is above 0, compressor_frequency is above 0 or external_water_pump_on is true,
       // then the outside unit of the heat pump system is running
@@ -2088,6 +2175,134 @@ binary_sensor:
           return false;
       }
 
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status TBH Enabled"
+    id: "${devicename}_status_tbh_enabled"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x8000    # BIT15
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status AHS Enabled"
+    id: "${devicename}_status_ahs_enabled"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x4000    # BIT14
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status Reserved BIT 13"
+    id: "${devicename}_status_reserved_bit_13"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x2000    # BIT13
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status T1B Enabled"
+    id: "${devicename}_status_t1b_enabled"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x1000    # BIT12
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status AHS Mode"
+    id: "${devicename}_status_ahs_mode"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x0800    # BIT11
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status IBH Enabled"
+    id: "${devicename}_status_ibh_enabled"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x0400    # BIT10
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status T1 Enabled"
+    id: "${devicename}_status_t1_enabled"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x0200    # BIT9
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status Energy Metering Enabled"
+    id: "${devicename}_status_energy_metering_enabled"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x0100    # BIT8
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status Reserved BIT 7"
+    id: "${devicename}_status_reserved_bit_7"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x0080    # BIT7
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status Reserved BIT 6"
+    id: "${devicename}_status_reserved_bit_6"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x0040    # BIT6
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status DHW Operation"
+    id: "${devicename}_status_dhw_operation"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x0020    # BIT5
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status Heating Operation"
+    id: "${devicename}_status_heating_operation"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x0010    # BIT4
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status Cooling Operation"
+    id: "${devicename}_status_cooling_operation"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x0008    # BIT3
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status Reserved BIT 2"
+    id: "${devicename}_status_reserved_bit_2"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x0004    # BIT2
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status Reserved BIT 1"
+    id: "${devicename}_status_reserved_bit_1"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x0002    # BIT1
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Status Reserved BIT 0"
+    id: "${devicename}_status_reserved_bit_0"
+    register_type: holding
+    address: 0xC6
+    bitmask: 0x0001    # BIT0
+    entity_category: diagnostic
 switch:
   - platform: factory_reset
     name: Restart with Factory Default Settings
@@ -2470,8 +2685,8 @@ switch:
 
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Forced Water Tank Heating On/Off"
-    id: "${devicename}_forced_water_tank_heating_on_off"
+    name: "Forced Water Tank Heating"
+    id: "${devicename}_forced_water_tank_heating"
     icon: mdi:fire-alert
     address: 0x7
     register_type: holding
@@ -2491,7 +2706,29 @@ switch:
       ${devicename}->queue_command(set_payload_command);
 
       return {};
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Forced Tank Backup Heater"
+    id: "${devicename}_forced_tbh"
+    icon: mdi:fire-alert
+    address: 0x8
+    register_type: holding
+    entity_category: config
+    write_lambda: |-
+      uint16_t value = 0;
 
+      if (x == 1) {
+        // ESP_LOGI("main", "Set forced tank backup heater ON");
+        value = 1;
+      } else {
+        // ESP_LOGI("main", "Set forced tank backup heater OFF");
+        value = 2;
+      }
+
+      esphome::modbus_controller::ModbusCommandItem set_payload_command = esphome::modbus_controller::ModbusCommandItem::create_write_single_command(${devicename}, 0x8, value);
+      ${devicename}->queue_command(set_payload_command);
+
+      return {};
   - platform: template
     name: "Parameter Setting 1 Heating And Cooling First Or Water First"
     id: "${devicename}_parameter_setting_1_heating_and_cooling_first_or_water_first"
@@ -3324,37 +3561,6 @@ switch:
           }
 
   - platform: template
-    name: "Enablement status of ACS function"
-    id: "${devicename}_parameter_setting_2_acs_enablement_status"
-    icon: mdi:eye
-    restore_mode: DISABLED
-    entity_category: config
-    optimistic: true
-    lambda: "return (id(unmasked_value_register_211) & 0x8000) == 0x8000;"
-    on_turn_on:
-      - lambda: |-
-          uint16_t checked_bit = 0x8000;
-          uint16_t new_value = id(unmasked_value_register_211);  // The original unmasked value
-          new_value &= ~checked_bit;                             // Clear and set
-          new_value += checked_bit;
-          if ((new_value) != id(unmasked_value_register_211)) {
-            // ESP_LOGD("unmasked_value_register_211", "Set option to on p_s_2_acs_enablement_status 0x%x -> 0x%x", id(unmasked_value_register_211), new_value);
-            id(unmasked_value_register_211) = new_value;
-            esphome::modbus_controller::ModbusCommandItem set_payload_command = esphome::modbus_controller::ModbusCommandItem::create_write_single_command(${devicename}, 211, new_value);
-            ${devicename}->queue_command(set_payload_command);
-          }
-    on_turn_off:
-      - lambda: |-
-          uint16_t checked_bit = 0x8000;
-          uint16_t new_value = id(unmasked_value_register_211);  // The original unmasked value
-          new_value &= ~checked_bit;                             // Clear and set
-          if ((new_value) != id(unmasked_value_register_211)) {
-            // ESP_LOGD("unmasked_value_register_211", "Set option to off p_s_2_acs_enablement_status 0x%x -> 0x%x", id(unmasked_value_register_211), new_value);
-            id(unmasked_value_register_211) = new_value;
-            esphome::modbus_controller::ModbusCommandItem set_payload_command = esphome::modbus_controller::ModbusCommandItem::create_write_single_command(${devicename}, 211, new_value);
-            ${devicename}->queue_command(set_payload_command);
-          }
-  - platform: template
     name: "EnSwitchPDC"
     id: "${devicename}_enswitchpdc"
     icon: mdi:eye
@@ -3988,45 +4194,6 @@ number:
     max_value: 25
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "IBH1 Power"
-    id: "${devicename}_ibh1_power"
-    icon: mdi:alpha-w
-    register_type: holding
-    address: 0xfa
-    value_type: U_WORD
-    unit_of_measurement: W
-    multiply: 0.01
-    entity_category: config
-    min_value: 0
-    max_value: 20000
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
-    name: "IBH2 Power"
-    id: "${devicename}_ibh2_power"
-    icon: mdi:alpha-w
-    register_type: holding
-    address: 0xfb
-    value_type: U_WORD
-    unit_of_measurement: W
-    multiply: 0.01
-    entity_category: config
-    min_value: 0
-    max_value: 20000
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
-    name: "TBH Power"
-    id: "${devicename}_tbh_power"
-    icon: mdi:alpha-w
-    register_type: holding
-    address: 0xfc
-    value_type: U_WORD
-    unit_of_measurement: W
-    multiply: 0.01
-    entity_category: config
-    min_value: 0
-    max_value: 20000
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
     name: "Temperature Rise Day Number"
     id: "${devicename}_t_dryup"
     icon: mdi:calendar-week
@@ -4160,7 +4327,7 @@ number:
     device_class: "temperature"
     entity_category: config
     min_value: 25
-    max_value: 65
+    max_value: 80
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "T1SetH2"
@@ -4173,7 +4340,7 @@ number:
     device_class: "temperature"
     entity_category: config
     min_value: 25
-    max_value: 65
+    max_value: 80
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "T4H1"
@@ -4186,7 +4353,7 @@ number:
     device_class: "temperature"
     entity_category: config
     min_value: -25
-    max_value: 30
+    max_value: 35
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "T4H2"
@@ -4199,7 +4366,7 @@ number:
     device_class: "temperature"
     entity_category: config
     min_value: -25
-    max_value: 30
+    max_value: 35
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "t_T4 FRESH_H"
@@ -4276,7 +4443,7 @@ number:
       // Extracting the low byte (Heating) and storing it as a float
       value_floats[1] = (float)(value & 0x00FF) * 0.5;
 
-      return value_floats[1];
+      return value_floats[0];
     write_lambda: |-
       uint16_t value = id(unmasked_value_register_270); // The original unmasked value
       float input = x * 2.0;                            // Multiply x (the input from the slider) by 2
@@ -4347,40 +4514,34 @@ number:
     id: "${devicename}_gas_price"
     icon: mdi:cash
     register_type: holding
-    address: 275
+    address: 0x113
     value_type: U_WORD
-    unit_of_measurement: "currency/m³"
+    unit_of_measurement: float
+    multiply: 100
     entity_category: config
     min_value: 0.0
     max_value: 5.0
-    step: 0.01
-    lambda: |-
-      return static_cast<float>(x) / 100.0f;
-    write_lambda: |-
-      return {roundf(x * 100.0f)};
+    step: 0.1
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "Electricity price"
     id: "${devicename}_electricity_price"
     icon: mdi:cash
     register_type: holding
-    address: 276
+    address: 0x114
     value_type: U_WORD
-    unit_of_measurement: "currency/kWh"
+    unit_of_measurement: "kWh"
+    multiply: 100
     entity_category: config
     min_value: 0.0
     max_value: 5.0
-    step: 0.01
-    lambda: |-
-      return static_cast<float>(x) / 100.0f;
-    write_lambda: |-
-      return {roundf(x * 100.0f)};
+    step: 0.1
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
     name: "SETHEATER Max Temperature"
     id: "${devicename}_setheater_max_temp"
     icon: mdi:thermometer-chevron-up
-    address: 277
+    address: 0x115
     value_type: U_WORD   #
     min_value: 0
     max_value: 80
@@ -4415,7 +4576,7 @@ number:
     name: "SETHEATER Min Temperature"
     id: "${devicename}_setheater_min_temp"
     icon: mdi:thermometer-chevron-down
-    address: 277
+    address: 0x115
     value_type: U_WORD
     min_value: 0
     max_value: 80
@@ -4449,7 +4610,7 @@ number:
     name: "SIGHEATER Max Voltage"
     id: "${devicename}_sigheater_max_voltage"
     icon: mdi:alpha-v-box-outline
-    address: 278
+    address: 0x116
     value_type: U_WORD
     min_value: 0
     max_value: 10
@@ -4484,7 +4645,7 @@ number:
     name: "SIGHEATER Min Voltage"
     id: "${devicename}_sigheater_min_voltage"
     icon: mdi:alpha-v-box-outline
-    address: 278
+    address: 0x116
     value_type: U_WORD
     min_value: 0
     max_value: 10
@@ -4519,12 +4680,120 @@ number:
     name: "Valve anti-lock running time"
     id: "${devicename}_t2_anti_svrun"
     icon: mdi:timer-cog-outline
-    address: 279
+    address: 0x117
     value_type: U_WORD
     unit_of_measurement: "s"
     entity_category: config
     min_value: 0
     max_value: 120
+    step: 1
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Zone 2 T1SetC1 Custom Curve Cooling"
+    id: "${devicename}_zone_2_t1setc1_custom_curve_cooling"
+    icon: mdi:chart-bell-curve
+    address: 0x118
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    entity_category: config
+    min_value: 5
+    max_value: 25
+    step: 1
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Zone 2 T1SetC2 Custom Curve Cooling"
+    id: "${devicename}_zone_2_t1setc2_custom_curve_cooling"
+    icon: mdi:chart-bell-curve
+    address: 0x119
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    entity_category: config
+    min_value: 5
+    max_value: 25
+    step: 1
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Zone 2 T4C1 Custom Curve Cooling"
+    id: "${devicename}_zone_2_t4c1_custom_curve_cooling"
+    icon: mdi:chart-bell-curve
+    address: 0x11A
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    entity_category: config
+    min_value: -5
+    max_value: 46
+    step: 1
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Zone 2 T4C2 Custom Curve Cooling"
+    id: "${devicename}_zone_2_t4c2_custom_curve_cooling"
+    icon: mdi:chart-bell-curve
+    address: 0x11B
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    entity_category: config
+    min_value: -5
+    max_value: 46
+    step: 1
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Zone 2 T1SetH1 Custom Curve Heating"
+    id: "${devicename}_zone_2_t1seth1_custom_curve_heating"
+    icon: mdi:chart-bell-curve
+    address: 0x11C
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    entity_category: config
+    min_value: 25
+    max_value: 80
+    step: 1
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Zone 2 T1SetH2 Custom Curve Heating"
+    id: "${devicename}_zone_2_t1seth2_custom_curve_heating"
+    icon: mdi:chart-bell-curve
+    address: 0x11D
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    entity_category: config
+    min_value: 25
+    max_value: 80
+    step: 1
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Zone 2 T4H1 Custom Curve Heating"
+    id: "${devicename}_zone_2_t4h1_custom_curve_heating"
+    icon: mdi:chart-bell-curve
+    address: 0x11E
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    entity_category: config
+    min_value: -25
+    max_value: 35
+    step: 1
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Zone 2 T4H2 Custom Curve Heating"
+    id: "${devicename}_zone_2_t4h2_custom_curve_heating"
+    icon: mdi:chart-bell-curve
+    address: 0x11F
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    entity_category: config
+    min_value: -25
+    max_value: 35
+    step: 1
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Ta Adjustment Temperature"
+    id: "${devicename}_ta_adjustment_temperature"
+    icon: mdi:thermometer-lines
+    address: 0x120
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    entity_category: config
+    min_value: -5
+    max_value: 5
     step: 1
 text_sensor:
   - platform: version
@@ -4532,30 +4801,32 @@ text_sensor:
     id: "${devicename}_esphome_version"
     icon: mdi:information
     hide_timestamp: true
+  - platform: wifi_info
+    mac_address:
+      name: ESP Mac Wifi Address
+      id: wifi_mac_address
   - platform: template
     name: "Active State"
     id: "${devicename}_active_state"
     icon: mdi:power
     entity_category: "diagnostic"
     lambda: |-
-      if (id(${devicename}_load_output_run).state) {
-        // The heat pump is on
-        if (id(${devicename}_status_bit_1_defrosting).state) {
-          return {"Defrosting"};
-        } else if (id(${devicename}_load_output_sv1).state) {
-          return {"DHW"};
-        } else if (id(${devicename}_water_flow_temperature_control_zone_1).state || id(${devicename}_water_flow_temperature_control_zone_2).state) {
-          // The heat pump is on for heating or cooling
-          if (id(${devicename}_status_bit_1_heating_mode_set_by_room_thermostat).state || id(${devicename}_operational_mode).state == "Heat") {
-            return {"Heating"};
-          } else if (id(${devicename}_status_bit_1_cooling_mode_set_by_room_thermostat).state || id(${devicename}_operational_mode).state == "Cool") {
-            return {"Cooling"};
+      if (id(${devicename}_operating_mode).state != "OFF") {
+        if (id(${devicename}_load_output_run).state) {
+          // The heat pump is on
+          if (id(${devicename}_status_bit_1_defrosting).state) {
+            return {"Defrosting"};
+          } else if (id(${devicename}_load_output_sv1).state) {
+            return {"DHW"};
           } else {
-            // Return "Heating" if we cannot determine the correct state, for example when operational_mode is set to Auto
-            return {"Heating"};
+            // Return the state from "Operating Mode", which can be Cooling or Heating
+            return id(${devicename}_operating_mode).state;
           }
         } else {
-          return {"Unknown"};
+          // The heat pumps operating mode is on (not OFF), but is not "Heating", "Cooling", or "DHW".
+          // In this case the heat pump is Idle, which is for example the case when it is preparing for a DHW
+          // run or between "Heating" sessions
+          return {"Idle"};
         }
       } else {
         // The heat pump is off
@@ -4921,46 +5192,6 @@ text_sensor:
       return output;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Home Appliance Type"
-    id: "${devicename}_home_appliance_type"
-    icon: mdi:state-machine
-    register_type: holding
-    address: 0xc8
-    response_size: 2
-    raw_encode: HEXBYTES
-    lambda: |-
-      int idx = item->offset;
-      std::string z = "";
-      uint16_t rawdata = (uint16_t(data[idx]) << 8) + uint16_t(data[idx + 1]);
-      // ESP_LOGD("Register 200", "The home appliance type is 0x%x", rawdata);
-      if ((rawdata >> 8) == 7) {
-        z = "Air to water heat pump";
-      } else {
-        z = std::to_string(data[idx]);
-      }
-      return {z};
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
-    name: "Home Appliance Sub Type"
-    id: "${devicename}_home_appliance_sub_type"
-    icon: "mdi:information-box-outline"
-    register_type: holding
-    address: 0xc8
-    response_size: 2
-    raw_encode: HEXBYTES
-    lambda: |-
-      int idx = item->offset;
-      std::string z = "";
-      uint16_t rawdata = (uint16_t(data[idx]) << 8) + uint16_t(data[idx + 1]);
-      // ESP_LOGD("Register 200", "The home appliance sub type is 0x%x", rawdata);
-      if (((rawdata & 0x000F) ) == 2) {
-        z = "R32";
-      } else {
-        z = std::to_string(rawdata & 0x0F) ;
-      }
-      return {z};
-  - platform: modbus_controller
-    modbus_controller_id: "${devicename}"
     name: "Home Appliance Product Code"
     id: "${devicename}_home_appliance_product_code"
     icon: "mdi:information-box-outline"
@@ -4982,81 +5213,57 @@ text_sensor:
 
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Modbus protocol version"
-    id: "${devicename}_modbus_protocol_version"
-    icon: mdi:information
+    name: "Heat Pump Operation Mode"
+    id: "${devicename}_heat_pump_operation_mode"
+    icon: mdi:heat-pump
     register_type: holding
-    address: 187
+    address: 0xC7
     lambda: |-
-      char buf[6];
-      snprintf(buf, sizeof(buf), "V%.1f", stoi(x) / 10.0f);
-      return std::string(buf);
+      uint16_t value = modbus_controller::word_from_hex_str(x, 0);
+      switch (value) {
+        case 0: return std::string("Off");
+        case 2: return std::string("Cooling");
+        case 3: return std::string("Heating");
+        case 5: return std::string("DHW");
+        default: return std::string("Invalid");
+      }
+      return x;
   - platform: modbus_controller
     modbus_controller_id: "${devicename}"
-    name: "Error Code"
-    id: "${devicename}_error_code"
-    icon: mdi:alert-circle
+    name: "MachineType"
+    id: "${devicename}_machinetype"
     register_type: holding
-    address: 188
+    address: 0xBB
     lambda: |-
-      // Extract components from the 16-bit value
-      uint16_t numX = stoi(x);
-      uint16_t main_error = numX & 0x01FF;     // Bits 0-8: Main error code (0-511)
-      uint8_t error_detail = (numX >> 9) & 0x0F; // Bits 9-12: Error detail (0-15)
-      uint8_t comp_error = (numX >> 13) & 0x07;  // Bits 13-15: Compressor error (0-7)
-
-      // Main error code table
-      const char* table[] = {
-        "No error",  // 0
-        "A0","A1","A2","A3","A4","A5","A6","A7","A8","A9",
-        "AA","AB","AC","AD","AE","AF","AH","AL","AP","AU",  // 1-20
-        "b0","b1","b2","b3","b4","b5","b6","b7","b8","b9",
-        "bA","bB","bC","bD","bE","bF","bH","bL","bP","bU",  // 21-40
-        "C0","C1","C2","C3","C4","C5","C6","C7","C8","C9",
-        "CA","CB","CC","CD","CE","CF","CH","CL","CP","CU",  // 41-60
-        "E0","E1","E2","E3","E4","E5","E6","E7","E8","E9",
-        "EA","EB","EC","ED","EE","EF","EH","EL","EP","EU",  // 61-80
-        "F0","F1","F2","F3","F4","F5","F6","F7","F8","F9",
-        "FA","FB","FC","FD","FE","FF","FH","FL","FP","FU",  // 81-100
-        "H0","H1","H2","H3","H4","H5","H6","H7","H8","H9",
-        "HA","HB","HC","HD","HE","HF","HH","HL","HP","HU",  // 101-120
-        "L0","L1","L2","L3","L4","L5","L6","L7","L8","L9",
-        "LA","LB","LC","LD","LE","LF","LH","LL","LP","LU",  // 121-140
-        "J0","J1","J2","J3","J4","J5","J6","J7","J8","J9",
-        "JA","JB","JC","JD","JE","JF","JH","JL","JP","JU",  // 141-160
-        "n0","n1","n2","n3","n4","n5","n6","n7","n8","n9",
-        "nA","nB","nC","nD","nE","nF","nH","nL","nP","nU",  // 161-180
-        "P0","P1","P2","P3","P4","P5","P6","P7","P8","P9",
-        "PA","PB","PC","PD","PE","PF","PH","PL","PP","PU",  // 181-200
-        "r0","r1","r2","r3","r4","r5","r6","r7","r8","r9",
-        "rA","rB","rC","rD","rE","rF","rH","rL","rP","rU",  // 201-220
-        "t0","t1","t2","t3","t4","t5","t6","t7","t8","t9",
-        "tA","tB","tC","tD","tE","tF","tH","tL","tP","tU",  // 221-240
-        "U0","U1","U2","U3","U4","U5","U6","U7","U8","U9",
-        "UA","UB","UC","UD","UE","UF","UH","UL","UP","UU"   // 241-260
-      };
-
-      // Build the error string
-      std::string error_str;
-
-      // Add main error code if valid
-      if (main_error < sizeof(table)/sizeof(table[0])) {
-        error_str = table[main_error];
-      } else {
-        error_str = "Invalid error code";
+      uint16_t value = modbus_controller::word_from_hex_str(x, 0);
+      switch (value) {
+        case 06: return std::string("A-R290");
+        default: return std::string("Unknown");
       }
-
-      // Add error detail if present
-      if (error_detail > 0) {
-        error_str += " Detail:" + std::to_string(error_detail);
+      return x;
+  - platform: modbus_controller
+    modbus_controller_id: "${devicename}"
+    name: "Hydraulic Module Sub-Model"
+    id: "${devicename}_hydraulic_module_submodel"
+    register_type: holding
+    address: 0xBE
+    lambda: |-
+      uint16_t value = modbus_controller::word_from_hex_str(x, 0);
+      switch (value) {
+        case 0: return std::string("R32-P");
+        case 1: return std::string("Aqua");
+        case 2: return std::string("C-R32-P");
+        case 3: return std::string("R290-A");
+        case 4: return std::string("R290-N");
+        case 5: return std::string("C-R290-A");
+        case 6: return std::string("C-R290-N");
+        case 7: return std::string("R32-A");
+        case 8: return std::string("C-R32-A");
+        case 9: return std::string("R290-M");
+        case 10: return std::string("R32-H");
+        default: return std::string("Unknown");
       }
-
-      // Add compressor error if present
-      if (comp_error > 0) {
-        error_str += " Comp:" + std::to_string(comp_error);
-      }
-
-      return error_str;
+      return x;
 interval:
   - interval: 1s
     then:
@@ -5069,7 +5276,6 @@ interval:
           - output.turn_on: green_led_out
           - delay: 500ms
           - output.turn_off: green_led_out
-
   - interval: 500ms
     then:
       if:
@@ -5079,14 +5285,14 @@ interval:
           - output.turn_off: orange_led_out
         else:
           - if:
-              condition: wifi.connected
+              condition:
+                wifi.connected
               then:
                 - output.turn_on: orange_led_out
                 - delay: 250ms
                 - output.turn_off: orange_led_out
               else:
                 - output.turn_off: orange_led_out
-
   - interval: 1h
     then:
       - lambda: |-
